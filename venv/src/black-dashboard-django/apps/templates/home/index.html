@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <div class="row">
+      <div class="col-lg-6">
+       <div class="card card-chart" style="height: 600px;">
+          <div class="card-header">
+            <h3 class="card-title"><i class="tim-icons icon-bell-55 text-primary"></i> 병원과 병명을 선택하세요 !</h3>
+          </div>
+		  <script type="text/javascript" src = "static/assets/js/test.js">  </script>
+		  <div style="display:block;">	
+		  
+		  <form method = "POST" class="form" id="post-form" url="{% url 'receive' %}">
+		  {% csrf_token %}
+		  <select name="sido1" id="sido1"></select>
+		  <select name="gugun1" id="gugun1"></select>
+		  <select name="disease" id="disease" title='disease'> 
+			<option value= "2">제3차 의료급여기관</option>
+			<option value= "3">응급의료병원</option>
+			<option value= "4">성인,소아 중환자실</option>
+			<option value= "5"> 신생아 중환자실 </option>
+			<option value= "6">개방병원 </option>
+			<option value= "8">가정간호실시병원</option>
+			<option value= "9">보훈위탁병원</option>
+			<option value= "10">의료서비스지원사업기관</option>
+			<option value= "12">알코올질환입원치료병원</option>
+			<option value= "13">혈액투석</option>
+			<option value= "14">체외충격파쇄석술</option>
+			<option value= "15">사시수술</option>
+			<option value= "16">인공와우이식술</option>
+			<option value= "17">측두하악관절 자극요법</option>
+			<option value= "18">인공심박동기이식술</option>
+			<option value= "19">부정맥고주파절제술</option>
+			<option value= "20">심율동전환제세동기거치술</option>
+			<option value= "21">손,발가락 접합술</option>
+			<option value= "22">망막수술</option>
+			<option value= "23">화상치료병원</option>
+			<option value= "24">재왕절개후자연분만병원</option>
+			<option value= "25">각막이식술</option>
+			<option value= "26">간이식술</option>
+			<option value= "27">신장이식술</option>
+			<option value= "28">심장이식술</option>
+			<option value="29">췌장이식술</option>
+			<option value="30">폐이식술 </option>
+			<option value="55"> 완화의료전문기관</option>
+			<option value="56">공막이식술</option>
+			<option value="57">소장이식술</option>
+			<option value="58">충수절제술(맹장수술)</option>
+			<option value="59">서혜 및 대퇴부(사타구니) 탈장수술</option>
+			<option value="60">항문수술(치질,치핵 등)</option>
+			<option value="61">자궁 및 자궁부속기(난소, 난관 등) 수술</option>
+			<option value="62"> 제왕절개분만</option>
+			<option value="63">수정체(백내장)수술</option>
+			<option value="64">편도 및 아데노이드 절제술</option>
+			<option value="71">정맥류수술</option>
+			<option value="72">골수이식술</option>
+			<option value="73">구순구개열</option> 
+			<option value = "74">안와골절정복술</option>
+			<option value="99">소아야간진료(20시 이후)</option>
+	
+		  </select>
+
+          <script type="text/javascript" src="static/assets/js/drawTest.js?newversion"></script>
+           <button type="submit" class="btn btn-primary" name = 'post-form' style = "height:30px;line-height: 12px;" onclick="drawTest();">
+              Search</button>
+
+          <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8ba26773e828fe887a99a8de35012d6&libraries=services"></script>
+
+		  </form>
+	
+
+		  <script type="text/javascript" src = "static/assets/js/select.js">  </script>
+		  <script type="text/javascript">
+		  	$('#post-form').on('submit', function(event){
+				event.preventDefault();
+				
+				$.ajax({
+					type: 'POST',
+					url: '/receive',
+					data:{
+						sido: $('#sido1').val(),
+						gugun: $('#gugun1').val(),
+						disease: $('#disease').val(),
+						csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+					},
+					success: function () {
+					}
+				});
+                 setTimeout( function() {window.location.replace("./receive");}, 30);
+			})
+           
+            
+		  </script>
+		  </div>
+
+          
+          <div class="card-body">
+            <div class="chart-area">
+              <!--<canvas id="chartLinePurple"></canvas>-->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+       <div class="card card-chart" style="height: 600px;">
+          <div class="card-header">
+			<h3 class="card-title">  </h3>
+          </div>
+          <div class="card-body">
+            <div class="chartBox">
+				<!--<canvas id="barChart" width="50" height="25"></canvas>-->
+                <div id="map" style="width:500px;height:400px;"></div>
+               
+            </div>
+
+          </div>
+          <li style="float:right;margin-left:1.5em;height:35px;"> 병원 정보가 없는 질병도 있습니다.</li>
+          <li style="float:right;margin-left:1.5em;height:35px;"> 예시) 서울특별시-강남구-응급의료병원 or 부산광역시-부산진구-망막수술  </li>
+          <li style="float:right;margin-left:1.5em;height:50px;"> 건강보험심사평가원에서 제공하는 데이터를 사용했습니다. </li>
+        </div>
+      </div>
+	  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	  <!--<script src="static/assets/js/hospital.js?newversion"></script>-->
+
+	</div>
+	<br>
+    
+{% endblock content %}
+

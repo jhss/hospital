@@ -1,0 +1,428 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card card-chart h-100">
+          <div class="card-header">
+            <h5 class="card-category">Total Shipments</h5>
+            <h3 class="card-title"><i class="tim-icons icon-bell-55 text-primary"></i> 763,215</h3>
+          </div>
+		  <script type="text/javascript" src = "static/assets/js/test.js">  </script>
+		  <div style="display:block;">	
+		  
+		  <form method = "POST" class="form" id="post-form" url="{% url 'receive' %}">
+		  {% csrf_token %}
+		  <select name="sido1" id="sido1"></select>
+		  <select name="gugun1" id="gugun1"></select>
+		  <select name="disease" id="disease" title='disease'> 
+			<option value= "2">제3차 의료급여기관</option>
+			<option value= "3">응급의료병원</option>
+			<option value= "4">성인,소아 중환자실</option>
+			<option value= "5"> 신생아 중환자실 </option>
+			<option value= "6">개방병원 </option>
+			<option value= "8">가정간호실시병원</option>
+			<option value= "9">보훈위탁병원</option>
+			<option value= "10">의료서비스지원사업기관</option>
+			<option value= "12">알코올질환입원치료병원</option>
+			<option value= "13">혈액투석</option>
+			<option value= "14">체외충격파쇄석술</option>
+			<option value= "15">사시수술</option>
+			<option value= "16">인공와우이식술</option>
+			<option value= "17">측두하악관절 자극요법</option>
+			<option value= "18">인공심박동기이식술</option>
+			<option value= "19">부정맥고주파절제술</option>
+			<option value= "20">심율동전환제세동기거치술</option>
+			<option value= "21">손,발가락 접합술</option>
+			<option value= "22">망막수술</option>
+			<option value= "23">화상치료병원</option>
+			<option value= "24">재왕절개후자연분만병원</option>
+			<option value= "25">각막이식술</option>
+			<option value= "26">간이식술</option>
+			<option value= "27">신장이식술</option>
+			<option value= "28">심장이식술</option>
+			<option value="29">췌장이식술</option>
+			<option value="30">폐이식술 </option>
+			<option value="55"> 완화의료전문기관</option>
+			<option value="56">공막이식술</option>
+			<option value="57">소장이식술</option>
+			<option value="58">충수절제술(맹장수술)</option>
+			<option value="59">서혜 및 대퇴부(사타구니) 탈장수술</option>
+			<option value="60">항문수술(치질,치핵 등)</option>
+			<option value="61">자궁 및 자궁부속기(난소, 난관 등) 수술</option>
+			<option value="62"> 제왕절개분만</option>
+			<option value="63">수정체(백내장)수술</option>
+			<option value="64">편도 및 아데노이드 절제술</option>
+			<option value="71">정맥류수술</option>
+			<option value="72">골수이식술</option>
+			<option value="73">구순구개열</option> 
+			<option value = "74">안와골절정복술</option>
+			<option value="99">소아야간진료(20시 이후)</option>
+	
+		  </select>
+
+          <p> HELLO </p>
+          <h2>  I am {{hos.addr}}  </h2>
+          <input type="hidden" id="myVar" name="variable" value="{{ hos }}">
+          <script type="text/javascript" src="static/assets/js/drawTest.js?newversion"></script>
+		  <a href="/receive">
+              <button type="submit" id = 'btnsubmit' class="btn btn-primary" name = 'post-form' onclick="location.href = '/receive'">
+              Search</button>
+          </a>
+          <a class="btn btn-primary" href="/receive" onclick="document.getElementById('post-form').submit()">Useradministration</a>
+          <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8ba26773e828fe887a99a8de35012d6&libraries=services"></script>
+
+		  <!--<input type='submit' name='post-form'>-->
+		  </form>
+	
+
+		  <script type="text/javascript" src = "static/assets/js/select.js">  </script>
+		  <script type="text/javascript">
+		  	$('#post-form').on('submit', function(event){
+				event.preventDefault();
+				
+				$.ajax({
+					type: 'POST',
+					url: '/receive',
+					data:{
+						sido: $('#sido1').val(),
+						gugun: $('#gugun1').val(),
+						disease: $('#disease').val(),
+						csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+					},
+					success: function () {
+					}
+				});
+
+			})
+
+            $("#btnSubmit").click(function()
+            {
+            window.location.href = "./receive"; //Your URi here
+            })
+
+		  </script>
+		  </div>
+
+          
+          <div class="card-body">
+            <div class="chart-area">
+              <!--<canvas id="chartLinePurple"></canvas>-->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card card-chart h-100">
+          <div class="card-header">
+			<h5 class="card-category">Hospital: {{ hospital.name }}</h5>
+			<h3 class="card-title">  </h3>
+          </div>
+          <div class="card-body">
+            <div class="chartBox">
+				<!--<canvas id="barChart" width="50" height="25"></canvas>-->
+                <div id="map" style="width:500px;height:400px;"></div>
+               
+            </div>
+          </div>
+        </div>
+      </div>
+	  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	  <!--<script src="static/assets/js/hospital.js?newversion"></script>-->
+
+	</div>
+	<br>
+    <div class="row">
+      <div class="col-lg-6 col-md-12">
+        <div class="card card-tasks">
+          <div class="card-header ">
+            <h6 class="title d-inline">Tasks(5)</h6>
+            <p class="card-category d-inline">today</p>
+            <div class="dropdown">
+              <button type="button" class="btn btn-link dropdown-toggle btn-icon" data-toggle="dropdown">
+                <i class="tim-icons icon-settings-gear-63"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#pablo">Action</a>
+                <a class="dropdown-item" href="#pablo">Another action</a>
+                <a class="dropdown-item" href="#pablo">Something else</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body ">
+            <div class="table-full-width table-responsive">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">Update the Documentation</p>
+                      <p class="text-muted">Dwuamish Head, Seattle, WA 8:47 AM</p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="" checked="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">GDPR Compliance</p>
+                      <p class="text-muted">The GDPR is a regulation that requires businesses to protect the personal data and privacy of Europe citizens for transactions that occur within EU member states.</p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">Solve the issues</p>
+                      <p class="text-muted">Fifty percent of all respondents said they would be more likely to shop at a company </p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">Release v2.0.0</p>
+                      <p class="text-muted">Ra Ave SW, Seattle, WA 98116, SUA 11:19 AM</p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">Export the processed files</p>
+                      <p class="text-muted">The report also shows that consumers will not easily forgive a company once a breach exposing their personal data occurs. </p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="title">Arival at export process</p>
+                      <p class="text-muted">Capitol Hill, Seattle, WA 12:34 AM</p>
+                    </td>
+                    <td class="td-actions text-right">
+                      <button type="button" rel="tooltip" title="" class="btn btn-link" data-original-title="Edit Task">
+                        <i class="tim-icons icon-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12">
+        <div class="card ">
+          <div class="card-header">
+            <h4 class="card-title"> Simple Table</h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table tablesorter " id="">
+                <thead class=" text-primary">
+                  <tr>
+                    <th>
+                      Name
+                    </th>
+                    <th>
+                      Country
+                    </th>
+                    <th>
+                      City
+                    </th>
+                    <th class="text-center">
+                      Salary
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Dakota Rice
+                    </td>
+                    <td>
+                      Niger
+                    </td>
+                    <td>
+                      Oud-Turnhout
+                    </td>
+                    <td class="text-center">
+                      $36,738
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Minerva Hooper
+                    </td>
+                    <td>
+                      Curaçao
+                    </td>
+                    <td>
+                      Sinaai-Waas
+                    </td>
+                    <td class="text-center">
+                      $23,789
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Sage Rodriguez
+                    </td>
+                    <td>
+                      Netherlands
+                    </td>
+                    <td>
+                      Baileux
+                    </td>
+                    <td class="text-center">
+                      $56,142
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Philip Chaney
+                    </td>
+                    <td>
+                      Korea, South
+                    </td>
+                    <td>
+                      Overland Park
+                    </td>
+                    <td class="text-center">
+                      $38,735
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Doris Greene
+                    </td>
+                    <td>
+                      Malawi
+                    </td>
+                    <td>
+                      Feldkirchen in Kärnten
+                    </td>
+                    <td class="text-center">
+                      $63,542
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Mason Porter
+                    </td>
+                    <td>
+                      Chile
+                    </td>
+                    <td>
+                      Gloucester
+                    </td>
+                    <td class="text-center">
+                      $78,615
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Jon Porter
+                    </td>
+                    <td>
+                      Portugal
+                    </td>
+                    <td>
+                      Gloucester
+                    </td>
+                    <td class="text-center">
+                      $98,615
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
+
