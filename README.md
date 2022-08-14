@@ -19,7 +19,7 @@ docker-compose up airflow-webserver
 ## 작동 방식
 
 
-###1. Data Ingestion
+### 1. Data Ingestion
 
 공공데이터포털에 있는 건강보험심사평가원에서 제공하는 API를 통해 병원평가정보를 가져와서 HDFS에 저장한다. 다음과 같은 두 개의 데이터를 가져온다.
 
@@ -35,7 +35,7 @@ docker-compose up airflow-webserver
 
 해당 데이터는 각 병원 마다 병을 얼마나 잘 진료하는지 항목별로 평가한 정보를 담고있다. 병원마다 23개의 질병 중 담당하고 있는 질병에 대해서만 점수가 있으며 1등급부터 5등급으로 나누어져있다. 원래는 등급이 낮을수록 좋은데, 본 프로젝트에서는 편의상 1등급->5점, 2등급->4점, ..., 5등급 -> 1점으로 점수를 변환하여서 사용하였다.
 
-###2. Data Transformation and Persist
+### 2. Data Transformation and Persist
 
 두 개의 소스에서 얻은 데이터를 ykiho를 기준으로 join해서 하나의 table을 만든다. 합쳐진 table에 적절한 전처리를 수행하고 Postgres로 데이터를 전송한다. 모든 연산은 Spark에서 수행된다.
 
