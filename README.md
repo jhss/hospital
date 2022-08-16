@@ -12,9 +12,10 @@
 ## Setup
 
 ```bash
-docker-compose up postgres
-docker-compose up django
-docker-compose up airflow-webserver
+docker-compose up postgres -d
+docker-compose up django -d
+docker-compose up initdb
+docker-compose up -d
 ```
 
 
