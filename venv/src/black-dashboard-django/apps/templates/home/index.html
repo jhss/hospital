@@ -7,17 +7,16 @@
 
 {% block content %}
 
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <div class="row">
       <div class="col-lg-6">
-       <div class="card card-chart" style="height: 600px;">
+        <div class="card card-chart" style="height: 600px;">
           <div class="card-header">
             <h3 class="card-title"><i class="tim-icons icon-bell-55 text-primary"></i> 병원과 병명을 선택하세요 !</h3>
           </div>
 		  <script type="text/javascript" src = "static/assets/js/test.js">  </script>
 		  <div style="display:block;">	
 		  
-		  <form method = "POST" class="form" id="post-form" url="{% url 'receive' %}">
+		  <form method = "POST" class="form" id="post-form" action="{% url 'receive' %}">
 		  {% csrf_token %}
 		  <select name="sido1" id="sido1"></select>
 		  <select name="gugun1" id="gugun1"></select>
@@ -66,15 +65,14 @@
 			<option value="99">소아야간진료(20시 이후)</option>
 	
 		  </select>
-
-          <script type="text/javascript" src="static/assets/js/drawTest.js?newversion"></script>
-           <button type="submit" class="btn btn-primary" name = 'post-form' style = "height:30px;line-height: 12px;" onclick="drawTest();">
-              Search</button>
-
+            <button type="submit" class="btn btn-primary" name = 'post-form' style = "height:30px;line-height: 12px;" onclick="drawTest();"> 
+            Search</button>
           <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8ba26773e828fe887a99a8de35012d6&libraries=services"></script>
+	      <script type="text/javascript" src="static/assets/js/drawTest.js?newversion"></script>
 
 		  </form>
 	
+		  <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
 
 		  <script type="text/javascript" src = "static/assets/js/select.js">  </script>
 		  <script type="text/javascript">
@@ -91,47 +89,161 @@
 						csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
 					},
 					success: function () {
+                        setTimeout( function() {window.location.replace("./receive");}, 10);
 					}
 				});
-                 setTimeout( function() {window.location.replace("./receive");}, 30);
+
 			})
-           
-            
+
 		  </script>
+        
 		  </div>
 
           
           <div class="card-body">
             <div class="chart-area">
-              <!--<canvas id="chartLinePurple"></canvas>-->
+               <center><div id="map" style="width:500px;height:400px;"></div></center>
             </div>
-          </div>
+            </div>
         </div>
       </div>
 
       <div class="col-lg-6">
-       <div class="card card-chart" style="height: 600px;">
+        <div class="card card-chart" style = "height: 600px;">
           <div class="card-header">
-			<h3 class="card-title">  </h3>
+			<h3 class="card-title">  <center><div id="hospital-name"></div></center></h3>
           </div>
-          <div class="card-body">
+          <div class="card-body" >
             <div class="chartBox">
-				<!--<canvas id="barChart" width="50" height="25"></canvas>-->
-                <div id="map" style="width:500px;height:400px;"></div>
+				<canvas id="barChart" width="50" height="25"></canvas>
                
             </div>
+            <center><h2 id="mytableid"></h2></center>
+            <script>
+
+            var name_list = {{request.session.name | safe}}
+            //var name_list = JSON.parse({{request.session.name}});
+            console.log("name_list: " + name_list);
+            var addr_list = '{{request.session.addr}}'.split(',');
+            console.log("addr_List: " + addr_list);
+            var x = 0;
+            var y = 0;
+
+            if(name_list.length > 0){
+                var mapContainer = document.getElementById('map'); // 지도를 표시할 div 
+                mapOption = {
+                    center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+                    level: 8 // 지도의 확대 레벨
+                };  
+
+                // 지도를 생성합니다    
+                var map = new kakao.maps.Map(mapContainer, mapOption); 
+
+                 // 주소-좌표 변환 객체를 생성합니다
+                var geocoder = new kakao.maps.services.Geocoder();
+
+                var tmp_length = addr_list.length-1;
+                var cnt = 0;
+                var valid = 0;
+
+                for (var ii = 0; ii < addr_list.length; ii++){
+                    // 주소로 좌표를 검색합니다
+                    geocoder.addressSearch(addr_list[ii], function(result, status) {
+                        // 정상적으로 검색이 완료됐으면 
+                         if (status === kakao.maps.services.Status.OK) {
+                            valid += 1;
+                            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                            y += parseFloat(result[0].y);
+                            x += parseFloat(result[0].x);
+
+                            // 결과값으로 받은 위치를 마커로 표시합니다
+                            var marker = new kakao.maps.Marker({
+                                map: map,
+                                position: coords,
+                                clickable: true
+                            });
+
+                            // 인포윈도우로 장소에 대한 설명을 표시합니다
+                             var infowindow = new kakao.maps.InfoWindow({
+                                 content: name_list[cnt] + "원" // 인포윈도우에 표시할 내용
+                             });
+
+                            kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+                            kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+                            kakao.maps.event.addListener(marker, 'click', drawGraph(cnt));
+                            
+                            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+                            
+                        } 
+
+                        if(cnt == tmp_length){
+                            x = x / valid;
+                            y = y / valid;
+                            var coords = new kakao.maps.LatLng(y, x);
+                            map.setCenter(coords);
+                         }
+                        
+                        cnt += 1;
+                    });    
+                }
+            }
+            else{
+                    
+                    document.getElementById("mytableid").innerHTML += "병원 정보가 없습니다.";
+                    console.log("no information");
+                }
+            function makeOverListener(map, marker, infowindow) {
+                return function() {
+                    infowindow.open(map, marker);
+                };
+            }
+
+            // 인포윈도우를 닫는 클로저를 만드는 함수입니다
+            function makeOutListener(infowindow) {
+                return function() {
+                    infowindow.close();
+                };
+            }
+
+            function drawGraph(cnt){
+                return function(){
+                    var name_list   = {{request.session.name|safe}}
+                    //var name_list   = JSON.parse(request.session.name);
+                    console.log("name_list: "+ name_list);
+                    var name = name_list[cnt];
+                    document.getElementById('hospital-name').innerHTML = name
+                    console.log("name: ", name);
+                    var asmgrd_list = {{request.session.asmgrdlist|safe}}
+                    var asmgrd = asmgrd_list[cnt];
+                    drawChart(asmgrd);
+                };
+            }
+          </script>
 
           </div>
-          <li style="float:right;margin-left:1.5em;height:35px;"> 병원 정보가 없는 질병도 있습니다.</li>
-          <li style="float:right;margin-left:1.5em;height:35px;"> 예시) 서울특별시-강남구-응급의료병원 or 부산광역시-부산진구-망막수술  </li>
-          <li style="float:right;margin-left:1.5em;height:50px;"> 건강보험심사평가원에서 제공하는 데이터를 사용했습니다. </li>
+            
+            <li style="float:right;margin-left:1.5em;height:35px;"> 병원 정보가 없는 질병도 있습니다.</li>
+            <li style="float:right;margin-left:1.5em;height:35px;"> 예시) 서울특별시-강남구-응급의료병원 or 부산광역시-부산진구-망막수술  </li>
+            <li style="float:right;margin-left:1.5em;height:50px;"> 건강보험심사평가원에서 제공하는 데이터를 사용했습니다. </li>
         </div>
       </div>
 	  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	  <!--<script src="static/assets/js/hospital.js?newversion"></script>-->
+	  <script src="static/assets/js/hospital.js?newversion"></script>
 
 	</div>
 	<br>
-    
+
 {% endblock content %}
 
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      demo.initDashboardPageCharts();
+
+    });
+  </script>
+
+{% endblock javascripts %}
