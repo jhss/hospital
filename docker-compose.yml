@@ -13,29 +13,51 @@ services:
         volumes:
         - ./data/postgres:/var/lib/postgresql/data
 
+    initdb:
+        image: jh111/airflow-hadoop-spark:latest
+        depends_on:
+          - postgres
+        command:
+          bash -c "airflow db init && airflow users  create --role Admin --username admin --email admin --firstname admin --lastname admin --password admin"
+        env_file:
+          - airflow.env
+        
+
     airflow-webserver:
-        image: jh111/airflow-hadoop-spark:v2
+        image: jh111/airflow-hadoop-spark:latest
         restart: always
-        environment:
-            - AIRFLOW_HOME=/home/airflow
-            - AIRFLOW__CORE__LOAD_EXAMPLES=False
-            - AIRFLOW__CORE__dags_folder=/home/airflow/dags
         volumes:
             - ./dags:/home/airflow/dags #DAG folder
-            - ./entry.sh:/home/airflow/entry.sh
+            - ./entry/entry_webserver.sh:/home/airflow/entry.sh
         ports:
             - "7777:7777"
+        healthcheck:
+          test: ["CMD-SHELL", "[ -f /home/airflow/airflow-webserver.pid ]"]
+          interval: 30s
+          timeout: 30s
+          retries: 3
         entrypoint: sh /home/airflow/entry.sh
         depends_on: 
           - postgres
-
-        #command: bash -c "sudo /etc/init.d/ssh start &&
-        #                  pip install pyspark==3.2.2 &&
-        #                  source ~/.profile &&
-        #                  start-dfs.sh &&
-        #                  start-yarn.sh &&
-        #                  airflow webserver -D --port 7777 &&
-        #                  airflow scheduler"
+        env_file:
+          - airflow.env
+    
+    airflow-scheduler:
+        image: jh111/airflow-hadoop-spark:latest
+        restart: always
+        volumes:
+            - ./dags:/home/airflow/dags #DAG folder
+            - ./entry/entry_scheduler.sh:/home/airflow/entry.sh
+        entrypoint: sh /home/airflow/entry.sh
+        healthcheck:
+          test: ["CMD-SHELL", "[ -f /home/airflow/airflow-scheduler.pid ]"]
+          interval: 30s
+          timeout: 30s
+          retries: 3
+        depends_on: 
+          - postgres
+        env_file:
+          - airflow.env
 
     django:
         image: jh111/django:v4
